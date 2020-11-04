@@ -1,0 +1,18 @@
+{
+  "dev": {
+    "NODE_ENV": "dev",
+    "SECURITY_GROUP_ID": "sg-",
+    "SUBNET1_ID": "subnet-",
+    "SUBNET2_ID": "subnet-",
+    "SUBNET3_ID": "subnet-",
+    "JWT_SECRET": "",
+    "BITLY_TOKEN": "",
+    "slack": {
+      "wordcloudLink": "",
+      "clientId": "",
+      "clientSecret": "",
+      "restApiUrl": "",
+      "kudosChannel": "#kudos"
+    }
+  }
+}

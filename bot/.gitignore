@@ -1,0 +1,10 @@
+node_modules
+.webpackCache
+.serverless
+.idea
+*.iml
+secrets.json
+.webpack
+deploy.sh
+_warmup
+config.json

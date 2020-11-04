@@ -1,0 +1,20 @@
+export enum CONFIG {
+    WORDCLOUD_LINK = (process as any).env.WORDCLOUD_LINK,
+    CLIENT_ID = (process as any).env.CLIENT_ID,
+    CLIENT_SECRET = (process as any).env.CLIENT_SECRET,
+    KUDOS_CHANNEL = <any>(process as any).env.KUDOS_CHANNEL,
+    BOT_REACTION_EMOJI = <any>(process as any).env.BOT_REACTION_EMOJI,
+    KUDOS_CHANNEL_ID = <any>(process as any).env.KUDOS_CHANNEL_ID,
+    SERVICE = (process as any).env.SERVICE,
+    STAGE = (process as any).env.STAGE,
+    BITLY_TOKEN = (process as any).env.BITLY_TOKEN,
+    JWT_SECRET = (process as any).env.JWT_SECRET,
+    ACCESS_TOKEN_TABLE_NAME = (process as any).env.ACCESS_TOKEN_TABLE_NAME,
+    SKILL_MATCHED_LOG_TABLE_NAME = (process as any).env.SKILL_MATCHED_LOG_TABLE_NAME,
+    POPUP_ID_TABLE_NAME = (process as any).env.POPUP_ID_TABLE_NAME,
+    SKILL_SEARCHED_LOG_TABLE_NAME = (process as any).env.SKILL_SEARCHED_LOG_TABLE_NAME,
+    PROFILE_CALLED_LOG_TABLE_NAME = (process as any).env.PROFILE_CALLED_LOG_TABLE_NAME,
+    KUDOS_CALLED_LOG_TABLE_NAME = (process as any).env.KUDOS_CALLED_LOG_TABLE_NAME,
+    BUTTON_CLICKED_LOG_TABLE_NAME = (process as any).env.BUTTON_CLICKED_LOG_TABLE_NAME,
+    REST_API_URL = (process as any).env.REST_API_URL
+}

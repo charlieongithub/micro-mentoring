@@ -1,0 +1,230 @@
+service: micromentoringbot
+
+plugins:
+  - serverless-webpack
+  - serverless-plugin-warmup
+
+package:
+  individually: true
+  exclude:
+    - "**"
+  include:
+    - "!node_modules/@types/**"
+    - src/**
+
+provider:
+  name: aws
+  region: eu-central-1
+  stage: prod
+  runtime: nodejs10.x
+  timeout: 30
+  environment:
+    KUDOS_CHANNEL_ID: ${file(config.json):${opt:stage, self:provider.stage}.slack.kudosChannelId}
+    KUDOS_CHANNEL: ${file(config.json):${opt:stage, self:provider.stage}.slack.kudosChannel}
+    BOT_REACTION_EMOJI: ${file(config.json):${opt:stage, self:provider.stage}.slack.botReactionEmoji}
+    SERVICE: ${self:service}
+    STAGE: ${self:provider.stage}
+    BITLY_TOKEN: ${file(config.json):${self:provider.stage}.BITLY_TOKEN}
+    JWT_SECRET: ${file(config.json):${self:provider.stage}.JWT_SECRET}
+    NODE_ENV: ${file(config.json):${opt:stage, self:provider.stage}.NODE_ENV}
+    WORDCLOUD_LINK: ${file(config.json):${opt:stage, self:provider.stage}.slack.wordcloudLink}
+    CLIENT_ID: ${file(config.json):${opt:stage, self:provider.stage}.slack.clientId}
+    CLIENT_SECRET: ${file(config.json):${opt:stage, self:provider.stage}.slack.clientSecret}
+    ACCESS_TOKEN_TABLE_NAME: ${self:resources.Resources.accessTokenTable.Properties.TableName}
+    SKILL_MATCHED_LOG_TABLE_NAME: ${self:resources.Resources.skillMatchedLogTable.Properties.TableName}
+    SKILL_SEARCHED_LOG_TABLE_NAME: ${self:resources.Resources.skillSearchedLogTable.Properties.TableName}
+    POPUP_ID_TABLE_NAME: ${self:resources.Resources.popupIdTable.Properties.TableName}
+    PROFILE_CALLED_LOG_TABLE_NAME: ${self:resources.Resources.profileCalledLogTable.Properties.TableName}
+    KUDOS_CALLED_LOG_TABLE_NAME: ${self:resources.Resources.kudosCalledLogTable.Properties.TableName}
+    BUTTON_CLICKED_LOG_TABLE_NAME: ${self:resources.Resources.actionButtonClickedLogTable.Properties.TableName}
+    REST_API_URL: ${file(config.json):${opt:stage, self:provider.stage}.slack.restApiUrl}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:*
+    - Effect: 'Allow'
+      Action:
+        - 'lambda:InvokeFunction'
+      Resource: "*"
+
+functions:
+  install:
+    handler: src/handler.install
+    events:
+      - http: GET install
+  authorized:
+    handler: src/handler.authorized
+    events:
+      - http: GET authorized
+  event:
+    warmup: true
+    timeout: 30
+    handler: src/handler.event
+    events:
+      - http:
+          method: post
+          path: event
+          async: true
+  mmaProfile:
+    warmup: true
+    timeout: 30
+    handler: src/slash/profile.show
+  mmaProfileActivateSkill:
+    warmup: true
+    timeout: 30
+    handler: src/slash/skill.mmaProfileActivateSkill
+  mmaProfileDeactivateSkill:
+    warmup: true
+    timeout: 30
+    handler: src/slash/skill.mmaProfileDeactivateSkill
+  mma:
+    warmup: true
+    timeout: 30
+    handler: src/slash/mma.search
+  search:
+    warmup: true
+    timeout: 30
+    handler: src/slash/mma.searchWithModal
+  searchOptions:
+    warmup: true
+    timeout: 30
+    handler: src/slash/mma.searchOptions
+    events:
+      - http: POST search-options
+  kudos:
+    warmup: true
+    timeout: 30
+    handler: src/slash/kudos.give
+  lotto:
+    warmup: true
+    timeout: 30
+    handler: src/slash/lotto.handler
+  slash:
+    warmup: true
+    timeout: 30
+    handler: src/slash/handler.proxy
+    events:
+      - http:
+          async: true
+          method: POST
+          path: slash/{command}
+  iKnowAbout:
+    warmup: true
+    timeout: 30
+    handler: src/slash/kudos.iKnowAbout
+  actions:
+    warmup: true
+    timeout: 30
+    handler: src/handler.handleActions
+    events:
+      - http: POST actions
+resources:
+  Resources:
+    accessTokenTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-accessTokenTable
+        AttributeDefinitions:
+          - AttributeName: teamId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: teamId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    skillMatchedLogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-skillMatchedLogTable
+        AttributeDefinitions:
+          - AttributeName: messageTs
+            AttributeType: S
+        KeySchema:
+          - AttributeName: messageTs
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    skillSearchedLogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-skillSearchedLogTable
+        AttributeDefinitions:
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: timestamp
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    profileCalledLogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-profileCalledLogTable
+        AttributeDefinitions:
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: timestamp
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    kudosCalledLogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-kudosCalledLogTable
+        AttributeDefinitions:
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: timestamp
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    actionButtonClickedLogTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-actionButtonClickedLogTable
+        AttributeDefinitions:
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: timestamp
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    popupIdTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage, self:provider.stage}-popupIdTable
+        AttributeDefinitions:
+          - AttributeName: teamId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: teamId
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+custom:
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    packager: 'npm'
+    includeModules: true
+    forceExclude:
+      - aws-sdk
+      - "@types/bluebird"
+      - "@types/validator"
+      - reflect-metadata
+
