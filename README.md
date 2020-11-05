@@ -56,7 +56,7 @@ If you invite the Micro Mentoring Bot to a channel with `/invite @Micro Mentorin
 ![bot recommendations](/docs/assets/images/recommend.png)
 
 ## Information Flow
-![information flow](/docs/assets/images/Micro Mentoring Bot.png)
+![information flow](/docs/assets/images/MicroMentoringBot.png)
 
 ## Stay in the loop
 To stay up to date about the progress please subscribe to the newsletter using the following [link](https://docs.google.com/forms/d/e/1FAIpQLSebXEXSfaygaWPhZ-ln6Rg9BN75iXWqqnYPDlYQA6ky5fxT0g/viewform?usp=sf_link).
